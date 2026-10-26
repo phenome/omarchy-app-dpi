@@ -181,7 +181,7 @@ export function listApplications(): AppInfo[] {
     const resolved = resolveBinary(parsed.exec);
     const { toolkit, strategy: detectedFromBinary } = detectToolkit(resolved);
 
-    const isOverridden = paths.activePath.startsWith(user);
+    const isOverridden = scale !== 1.0;
 
     results.push({
       id,
@@ -231,7 +231,7 @@ export function findAppById(appId: string): AppInfo | null {
           toolkit,
           strategy: detectedStrategy || strategy,
           currentScale: scale,
-          isOverridden: candidate.startsWith(user),
+          isOverridden: scale !== 1.0,
           desktopPath: candidate,
           systemDesktopPath: candidate.startsWith(user)
             ? system.map((s) => path.join(s, `${normId}.desktop`)).find((p) => fs.existsSync(p)) ||

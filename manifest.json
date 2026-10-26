@@ -4,10 +4,17 @@
   "name": "App Scaling",
   "version": "1.0.0",
   "author": "phenome",
+  "license": "MIT",
   "description": "Per-application DPI and scaling manager for Omarchy",
-  "kinds": ["overlay"],
-  "keepLoaded": false,
+  "kinds": ["bar-widget"],
   "entryPoints": {
-    "overlay": "AppDpi.qml"
+    "barWidget": "AppDpiWidget.qml"
+  },
+  "barWidget": {
+    "displayName": "App Scaling",
+    "description": "Per-application DPI and scaling manager popover",
+    "category": "System",
+    "allowMultiple": false,
+    "defaultSection": "right"
   }
 }
