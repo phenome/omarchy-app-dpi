@@ -9,6 +9,7 @@ export type ToolkitType =
   | "game"
   | "gecko"
   | "java"
+  | "unrecognized"
   | "unknown";
 
 export type ScalingStrategy =
@@ -19,6 +20,7 @@ export type ScalingStrategy =
   | "JAVA_UI_SCALE"
   | "BROWSER_ZOOM"
   | "IN_GAME_SETTINGS"
+  | "UNIVERSAL_FALLBACK"
   | "UNKNOWN";
 
 export interface AppInfo {

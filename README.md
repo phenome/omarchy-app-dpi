@@ -22,9 +22,9 @@ Allows overriding the UI scaling factor of individual applications without alter
 | **GTK 4** | Dynamic dependency `libgtk-4.so` | `env GDK_SCALE=1 GDK_DPI_SCALE=<scale>` |
 | **GTK 3** | Dynamic dependency `libgtk-3.so` | `env GDK_SCALE=1 GDK_DPI_SCALE=<scale>` |
 | **Electron / Chromium** | ASAR archive, `force-device-scale-factor` flag | `--force-device-scale-factor=<scale>` |
-| **WebApps / PWAs** | `omarchy-launch-webapp`, `--app=` flag, `chrome-*` class | `--force-device-scale-factor=<scale>` |
+| **WebApps / PWAs** | `omarchy-launch-webapp`, `--app=` flag, `chrome-*` class | In-browser zoom (`Ctrl +` / `Ctrl -` / `Ctrl 0`) |
 | **Java** (AWT/Swing/JavaFX) | Executable `java` or `libjvm.so` | `-Dsun.java2d.uiScale=<scale>` |
-| **Unknown** (Fallback) | Unidentified ELF or generic binaries | Multi-toolkit environment variables (`QT_SCALE_FACTOR`, `GDK_DPI_SCALE`, `SLINT_SCALE_FACTOR`) |
+| **Unrecognized Engine** | Unidentified binaries or custom engines | `UNIVERSAL_FALLBACK`: Injects markers for every supported engine (`QT_SCALE_FACTOR`, `GDK_DPI_SCALE`, `SLINT_SCALE_FACTOR`), with no guarantees |
 
 ---
 

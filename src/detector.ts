@@ -243,7 +243,7 @@ export function detectToolkit(
   }
 
   if (!binaryPath || !fs.existsSync(binaryPath)) {
-    return { toolkit: "unknown", strategy: "UNKNOWN" };
+    return { toolkit: "unrecognized", strategy: "UNIVERSAL_FALLBACK" };
   }
 
   let mtime = 0;
@@ -371,6 +371,5 @@ function detectToolkitUncached(binaryPath: string): {
   if (binaryName === "firefox" || binaryName === "thunderbird") {
     return { toolkit: "gecko", strategy: "UNKNOWN" };
   }
-
-  return { toolkit: "unknown", strategy: "UNKNOWN" };
+  return { toolkit: "unrecognized", strategy: "UNIVERSAL_FALLBACK" };
 }

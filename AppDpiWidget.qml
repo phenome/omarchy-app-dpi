@@ -514,7 +514,7 @@ Panel {
                     Text {
                       id: toolkitBadgeText
                       textFormat: Text.PlainText
-                      text: modelData.toolkit.toUpperCase()
+                      text: modelData.toolkit === "unrecognized" || modelData.toolkit === "unknown" ? "UNRECOGNIZED" : modelData.toolkit.toUpperCase()
                       color: appRow.isSelected ? root.selectedText : root.foreground
                       font.family: root.fontFamily
                       font.pixelSize: Style.font.caption
@@ -598,7 +598,7 @@ Panel {
         // Selected App Card & Controls
         Rectangle {
           width: parent.width
-          height: !selectedApp ? Style.space(50) : (selectedApp.toolkit === "webapp" ? Style.space(170) : (selectedApp.toolkit === "game" ? Style.space(140) : Style.space(190)))
+          height: !selectedApp ? Style.space(50) : (selectedApp.toolkit === "webapp" ? Style.space(170) : (selectedApp.toolkit === "game" ? Style.space(140) : (selectedApp.toolkit === "unrecognized" || selectedApp.toolkit === "unknown" ? Style.space(255) : Style.space(190))))
           radius: Style.cornerRadius
           color: root.tintColor(root.foreground, 0.05)
           border.color: root.tintColor(root.foreground, 0.10)
@@ -769,6 +769,43 @@ Panel {
               }
             }
 
+            // Unrecognized engine notice
+            Rectangle {
+              width: parent.width
+              height: Style.space(56)
+              radius: Style.cornerRadius
+              color: root.tintColor(root.foreground, 0.05)
+              border.color: root.tintColor(root.foreground, 0.12)
+              border.width: 1
+              visible: root.selectedApp.toolkit === "unrecognized" || root.selectedApp.toolkit === "unknown"
+
+              Column {
+                anchors.fill: parent
+                anchors.margins: Style.space(8)
+                spacing: Style.space(2)
+
+                Text {
+                  textFormat: Text.PlainText
+                  text: "⚠️ Unrecognized engine"
+                  color: root.foreground
+                  font.family: root.fontFamily
+                  font.pixelSize: Style.font.caption
+                  font.bold: true
+                }
+
+                Text {
+                  textFormat: Text.PlainText
+                  text: "Applying scale injects markers for every supported engine (Qt, GTK, Slint), but with no guarantees."
+                  color: root.foreground
+                  opacity: 0.75
+                  font.family: root.fontFamily
+                  font.pixelSize: Style.font.caption
+                  wrapMode: Text.WordWrap
+                  width: parent.width
+                }
+              }
+            }
+
             // Manageable App Controls (Stepper, Presets, Action buttons)
             Column {
               width: parent.width
@@ -834,7 +871,7 @@ Panel {
                 spacing: Style.space(8)
 
                 Button {
-                  text: "Apply Scale"
+                  text: root.selectedApp.toolkit === "unrecognized" || root.selectedApp.toolkit === "unknown" ? "Apply (No Guarantees)" : "Apply Scale"
                   width: (parent.width - Style.space(8)) * 0.6
                   height: Style.space(32)
                   bordered: true

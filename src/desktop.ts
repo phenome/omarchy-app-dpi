@@ -353,7 +353,7 @@ export function buildScaledExec(
       return `${baseExec} ${flag}`;
     }
     default: {
-      // Fallback for UNKNOWN: provide generic env wrappers
+      // Universal fallback for unrecognized engines: inject markers for Qt, GTK, and Slint
       return `env QT_SCALE_FACTOR=${scaleStr} GDK_SCALE=1 GDK_DPI_SCALE=${scaleStr} SLINT_SCALE_FACTOR=${scaleStr} ${baseExec}`;
     }
   }
