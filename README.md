@@ -4,6 +4,12 @@ Per-application DPI and scaling manager for [Omarchy](https://omarchy.org/) Linu
 
 Allows overriding the UI scaling factor of individual applications without altering global monitor scaling. Automatically inspects ELF binaries and wrapper scripts to detect application toolkits deterministically and injects the optimal scaling environment variable or command-line flag into user desktop entries (`~/.local/share/applications/*.desktop`).
 
+<p align="center">
+  <img src="screenshots/overview.png" alt="App Scaling Overview" width="400" />
+  &nbsp;&nbsp;
+  <img src="screenshots/custom-scaling.png" alt="Custom Scale & Filter" width="400" />
+</p>
+
 ---
 
 ## Supported Toolkits & Strategies

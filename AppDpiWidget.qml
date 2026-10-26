@@ -269,29 +269,63 @@ Panel {
           border.color: filterInput.activeFocus ? root.accent : root.tintColor(root.foreground, 0.15)
           border.width: 1
 
-          Row {
+          Item {
             anchors.fill: parent
-            anchors.leftMargin: Style.space(10)
-            anchors.rightMargin: Style.space(10)
-            spacing: Style.space(8)
 
             Text {
+              id: searchGlyph
               textFormat: Text.PlainText
               text: root.glyphSearch
               color: root.foreground
               font.pixelSize: Style.font.body
+              anchors.left: parent.left
+              anchors.leftMargin: Style.space(10)
               anchors.verticalCenter: parent.verticalCenter
               opacity: 0.6
             }
 
+            Item {
+              id: clearButton
+              visible: root.filterText.length > 0
+              width: Style.space(24)
+              height: Style.space(24)
+              anchors.right: parent.right
+              anchors.rightMargin: Style.space(6)
+              anchors.verticalCenter: parent.verticalCenter
+
+              Text {
+                textFormat: Text.PlainText
+                text: "✕"
+                color: clearMouse.containsMouse ? root.foreground : root.tintColor(root.foreground, 0.5)
+                font.family: root.fontFamily
+                font.pixelSize: Style.font.caption
+                anchors.centerIn: parent
+              }
+
+              MouseArea {
+                id: clearMouse
+                anchors.fill: parent
+                hoverEnabled: true
+                cursorShape: Qt.PointingHandCursor
+                onClicked: {
+                  root.filterText = "";
+                  root.applyFilter();
+                  filterInput.forceActiveFocus();
+                }
+              }
+            }
+
             TextInput {
               id: filterInput
-              width: parent.width - Style.space(30)
+              anchors.left: searchGlyph.right
+              anchors.leftMargin: Style.space(8)
+              anchors.right: clearButton.visible ? clearButton.left : parent.right
+              anchors.rightMargin: Style.space(8)
+              anchors.verticalCenter: parent.verticalCenter
               text: root.filterText
               color: root.foreground
               font.family: root.fontFamily
               font.pixelSize: Style.font.body
-              anchors.verticalCenter: parent.verticalCenter
               clip: true
               selectByMouse: true
 
@@ -348,7 +382,6 @@ Panel {
             }
           }
         }
-
         // Section Header
         PanelSectionHeader {
           text: "APPLICATIONS"
@@ -397,25 +430,81 @@ Panel {
                   ? root.tintColor(root.foreground, 0.08)
                   : "transparent"
 
-              Row {
+              Item {
                 anchors.fill: parent
                 anchors.leftMargin: Style.space(8)
                 anchors.rightMargin: Style.space(8)
-                spacing: Style.space(8)
 
                 Image {
+                  id: appIcon
                   width: Style.space(22)
                   height: Style.space(22)
                   source: root.resolveIcon(modelData.icon)
+                  anchors.left: parent.left
                   anchors.verticalCenter: parent.verticalCenter
                   fillMode: Image.PreserveAspectFit
                   asynchronous: true
                 }
 
+                Row {
+                  id: trailingBadges
+                  anchors.right: parent.right
+                  anchors.verticalCenter: parent.verticalCenter
+                  spacing: Style.space(6)
+
+                  // Toolkit badge
+                  Rectangle {
+                    height: Style.space(18)
+                    width: toolkitBadgeText.implicitWidth + Style.space(8)
+                    radius: Style.space(3)
+                    color: root.tintColor(root.foreground, 0.12)
+                    anchors.verticalCenter: parent.verticalCenter
+
+                    Text {
+                      id: toolkitBadgeText
+                      textFormat: Text.PlainText
+                      text: modelData.toolkit.toUpperCase()
+                      color: appRow.isSelected ? root.selectedText : root.foreground
+                      font.family: root.fontFamily
+                      font.pixelSize: Style.font.caption
+                      anchors.centerIn: parent
+                      opacity: 0.8
+                    }
+                  }
+
+                  // Scale pill
+                  Rectangle {
+                    width: Math.max(Style.space(46), scalePillText.implicitWidth + Style.space(10))
+                    height: Style.space(18)
+                    radius: Style.space(9)
+                    anchors.verticalCenter: parent.verticalCenter
+                    color: modelData.currentScale !== 1.0
+                      ? root.accent
+                      : root.tintColor(root.foreground, 0.10)
+
+                    Text {
+                      id: scalePillText
+                      textFormat: Text.PlainText
+                      text: modelData.currentScale.toFixed(2) + "x"
+                      color: modelData.currentScale !== 1.0
+                        ? Commons.Color.background
+                        : root.foreground
+                      font.family: root.fontFamily
+                      font.pixelSize: Style.font.caption
+                      font.bold: true
+                      anchors.centerIn: parent
+                    }
+                  }
+                }
+
                 Column {
-                  width: parent.width - Style.space(110)
+                  anchors.left: appIcon.right
+                  anchors.leftMargin: Style.space(8)
+                  anchors.right: trailingBadges.left
+                  anchors.rightMargin: Style.space(8)
                   anchors.verticalCenter: parent.verticalCenter
                   spacing: 0
+                  clip: true
 
                   Text {
                     textFormat: Text.PlainText
@@ -437,50 +526,6 @@ Panel {
                     opacity: 0.5
                     elide: Text.ElideRight
                     width: parent.width
-                  }
-                }
-
-                // Toolkit badge
-                Rectangle {
-                  height: Style.space(16)
-                  width: toolkitBadgeText.implicitWidth + Style.space(6)
-                  radius: Style.space(3)
-                  color: root.tintColor(root.foreground, 0.12)
-                  anchors.verticalCenter: parent.verticalCenter
-
-                  Text {
-                    id: toolkitBadgeText
-                    textFormat: Text.PlainText
-                    text: modelData.toolkit.toUpperCase()
-                    color: appRow.isSelected ? root.selectedText : root.foreground
-                    font.family: root.fontFamily
-                    font.pixelSize: Style.font.caption
-                    anchors.centerIn: parent
-                    opacity: 0.8
-                  }
-                }
-
-                // Scale pill
-                Rectangle {
-                  width: Math.max(Style.space(48), scalePillText.implicitWidth + Style.space(12))
-                  height: Style.space(20)
-                  radius: Style.space(10)
-                  anchors.verticalCenter: parent.verticalCenter
-                  color: modelData.currentScale !== 1.0
-                    ? root.accent
-                    : root.tintColor(root.foreground, 0.10)
-
-                  Text {
-                    id: scalePillText
-                    textFormat: Text.PlainText
-                    text: modelData.currentScale.toFixed(2) + "x"
-                    color: modelData.currentScale !== 1.0
-                      ? Commons.Color.background
-                      : root.foreground
-                    font.family: root.fontFamily
-                    font.pixelSize: Style.font.caption
-                    font.bold: true
-                    anchors.centerIn: parent
                   }
                 }
               }
@@ -572,44 +617,34 @@ Panel {
               }
             }
 
-            // Stepper & Presets
             // Stepper Row
             Row {
-              width: parent.width
-              spacing: Style.space(8)
+              anchors.horizontalCenter: parent.horizontalCenter
+              spacing: Style.space(16)
 
               Button {
                 text: "−0.05"
-                width: Style.space(60)
-                height: Style.space(28)
-                fontSize: Style.font.caption
+                width: Style.space(68)
+                height: Style.space(30)
+                fontSize: Style.font.bodySmall
                 onClicked: root.adjustTargetScale(-0.05)
               }
 
-              Rectangle {
-                width: Style.space(80)
-                height: Style.space(28)
-                radius: Style.cornerRadius
-                color: root.tintColor(root.foreground, 0.08)
-                border.color: root.accent
-                border.width: 1
-
-                Text {
-                  textFormat: Text.PlainText
-                  text: root.targetScale.toFixed(2) + "x"
-                  color: root.foreground
-                  font.family: root.fontFamily
-                  font.pixelSize: Style.font.bodySmall
-                  font.bold: true
-                  anchors.centerIn: parent
-                }
+              Text {
+                textFormat: Text.PlainText
+                text: root.targetScale.toFixed(2) + "x"
+                color: root.foreground
+                font.family: root.fontFamily
+                font.pixelSize: Style.font.title
+                font.bold: true
+                anchors.verticalCenter: parent.verticalCenter
               }
 
               Button {
                 text: "+0.05"
-                width: Style.space(60)
-                height: Style.space(28)
-                fontSize: Style.font.caption
+                width: Style.space(68)
+                height: Style.space(30)
+                fontSize: Style.font.bodySmall
                 onClicked: root.adjustTargetScale(0.05)
               }
             }
@@ -617,13 +652,15 @@ Panel {
             // Presets Row
             Row {
               width: parent.width
-              spacing: Style.space(5)
+              spacing: Style.space(6)
 
               Repeater {
-                model: [0.75, 0.80, 0.85, 1.00, 1.15, 1.25, 1.50]
+                model: [0.75, 0.85, 1.00, 1.15, 1.25]
                 delegate: Button {
                   text: modelData.toFixed(2) + "x"
+                  width: Math.floor((parent.width - Style.space(24)) / 5)
                   height: Style.space(26)
+                  horizontalPadding: Style.space(4)
                   fontSize: Style.font.caption
                   selected: Math.abs(root.targetScale - modelData) < 0.01
                   onClicked: {
