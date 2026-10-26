@@ -145,6 +145,29 @@ export function extractCurrentScale(execLine: string): {
 
   return { scale: 1.0 };
 }
+export function getLauncherHides(): Set<string> {
+  const hides = new Set<string>();
+  const paths = [
+    "/usr/share/omarchy/default/omarchy/launcher.hides",
+    path.join(os.homedir(), ".config/omarchy/launcher.hides"),
+  ];
+  for (const p of paths) {
+    if (fs.existsSync(p)) {
+      try {
+        const lines = fs.readFileSync(p, "utf8").split("\n");
+        for (const line of lines) {
+          const trimmed = line.trim();
+          if (trimmed && !trimmed.startsWith("#")) {
+            hides.add(trimmed.endsWith(".desktop") ? trimmed.slice(0, -8) : trimmed);
+          }
+        }
+      } catch {
+        // Ignore read error
+      }
+    }
+  }
+  return hides;
+}
 
 export function listApplications(): AppInfo[] {
   const { user, system } = getApplicationDirs();
@@ -178,14 +201,16 @@ export function listApplications(): AppInfo[] {
   for (const sysDir of system) {
     scanDir(sysDir, false);
   }
-
+  const launcherHides = getLauncherHides();
   const results: AppInfo[] = [];
 
   for (const [id, paths] of appMap.entries()) {
+    if (launcherHides.has(id)) continue;
     const parsed = parseDesktopFile(paths.activePath);
     if (!parsed) continue;
     if (parsed.type && parsed.type !== "Application") continue;
     if (parsed.noDisplay) continue;
+    if (parsed.terminal) continue;
 
     const { scale, detectedStrategy } = extractCurrentScale(parsed.exec);
     const resolved = resolveBinary(parsed.exec);
