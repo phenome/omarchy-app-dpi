@@ -5,6 +5,8 @@ export type ToolkitType =
   | "gtk4"
   | "gtk3"
   | "electron"
+  | "webapp"
+  | "game"
   | "gecko"
   | "java"
   | "unknown";

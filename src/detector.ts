@@ -214,10 +214,34 @@ function saveCache(): void {
   }
 }
 
-export function detectToolkit(binaryPath: string | null): {
+export interface DetectionContext {
+  execLine?: string;
+  startupWMClass?: string;
+  categories?: string;
+}
+
+export function detectToolkit(
+  binaryPath: string | null,
+  context?: DetectionContext,
+): {
   toolkit: ToolkitType;
   strategy: ScalingStrategy;
 } {
+  // Check context signatures first (WebApps, PWAs, Games)
+  if (context?.execLine) {
+    const exec = context.execLine;
+    if (
+      exec.includes("omarchy-launch-webapp") ||
+      exec.includes("--app=") ||
+      context.startupWMClass?.toLowerCase().startsWith("chrome-")
+    ) {
+      return { toolkit: "webapp", strategy: "CHROME_SCALE_FLAG" };
+    }
+    if (exec.includes("steam steam://") || context.categories?.includes("Game;")) {
+      return { toolkit: "game", strategy: "UNKNOWN" };
+    }
+  }
+
   if (!binaryPath || !fs.existsSync(binaryPath)) {
     return { toolkit: "unknown", strategy: "UNKNOWN" };
   }

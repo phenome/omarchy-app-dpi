@@ -21,6 +21,8 @@ export function parseDesktopFile(filePath: string): {
   terminal?: boolean;
   noDisplay?: boolean;
   type?: string;
+  startupWMClass?: string;
+  categories?: string;
 } | null {
   try {
     const content = fs.readFileSync(filePath, "utf8");
@@ -33,6 +35,8 @@ export function parseDesktopFile(filePath: string): {
     let terminal: boolean | undefined;
     let noDisplay: boolean | undefined;
     let type: string | undefined;
+    let startupWMClass: string | undefined;
+    let categories: string | undefined;
 
     for (const rawLine of lines) {
       const line = rawLine.trim();
@@ -62,6 +66,10 @@ export function parseDesktopFile(filePath: string): {
         noDisplay = val.toLowerCase() === "true";
       } else if (key === "Type") {
         type = val;
+      } else if (key === "StartupWMClass" && !startupWMClass) {
+        startupWMClass = val;
+      } else if (key === "Categories" && !categories) {
+        categories = val;
       }
     }
 
@@ -78,6 +86,8 @@ export function parseDesktopFile(filePath: string): {
       terminal,
       noDisplay,
       type,
+      startupWMClass,
+      categories,
     };
   } catch {
     return null;
@@ -179,7 +189,11 @@ export function listApplications(): AppInfo[] {
 
     const { scale, detectedStrategy } = extractCurrentScale(parsed.exec);
     const resolved = resolveBinary(parsed.exec);
-    const { toolkit, strategy: detectedFromBinary } = detectToolkit(resolved);
+    const { toolkit, strategy: detectedFromBinary } = detectToolkit(resolved, {
+      execLine: parsed.exec,
+      startupWMClass: parsed.startupWMClass,
+      categories: parsed.categories,
+    });
 
     const isOverridden = scale !== 1.0;
 
@@ -221,7 +235,11 @@ export function findAppById(appId: string): AppInfo | null {
       if (parsed) {
         const { scale, detectedStrategy } = extractCurrentScale(parsed.exec);
         const resolved = resolveBinary(parsed.exec);
-        const { toolkit, strategy } = detectToolkit(resolved);
+        const { toolkit, strategy } = detectToolkit(resolved, {
+          execLine: parsed.exec,
+          startupWMClass: parsed.startupWMClass,
+          categories: parsed.categories,
+        });
         return {
           id: parsed.id,
           name: parsed.name,
