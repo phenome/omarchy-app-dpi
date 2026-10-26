@@ -1,0 +1,24 @@
+{
+  "name": "omarchy-app-dpi",
+  "version": "1.0.0",
+  "description": "Per-application DPI and scaling manager for Omarchy",
+  "type": "module",
+  "bin": {
+    "omarchy-app-dpi": "./bin/omarchy-app-dpi"
+  },
+  "scripts": {
+    "lint": "biome check .",
+    "lint:fix": "biome check --write .",
+    "format": "biome format --write .",
+    "check": "bun check",
+    "postinstall": "for f in node_modules/.bin/*; do if [ -L \"$f\" ]; then t=$(readlink -f \"$f\"); rm \"$f\"; ln \"$t\" \"$f\" 2>/dev/null || cp \"$t\" \"$f\"; fi; done"
+  },
+  "devDependencies": {
+    "@biomejs/biome": "^2.6.3",
+    "@types/bun": "^1.4.4",
+    "@types/node": "^26.6.5",
+    "lefthook": "^2.2.2",
+    "typescript": "^5.8.0"
+  },
+  "license": "MIT"
+}

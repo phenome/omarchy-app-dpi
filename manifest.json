@@ -1,0 +1,13 @@
+{
+  "schemaVersion": 1,
+  "id": "phenome.app-dpi",
+  "name": "App Scaling",
+  "version": "1.0.0",
+  "author": "phenome",
+  "description": "Per-application DPI and scaling manager for Omarchy",
+  "kinds": ["overlay"],
+  "keepLoaded": false,
+  "entryPoints": {
+    "overlay": "AppDpi.qml"
+  }
+}
