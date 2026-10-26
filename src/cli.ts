@@ -3,21 +3,23 @@ import { findAppById, listApplications, resetAppScale, setAppScale } from "./des
 import type { ScalingStrategy } from "./types.ts";
 
 function printHelp(): void {
-  console.log(`omarchy-app-dpi - Per-application DPI and scaling manager for Omarchy
+  console.log(`omarchy-app-scaling - Per-application scaling manager for Omarchy
 
 Usage:
-  omarchy-app-dpi list [--json] [--search <term>]
-  omarchy-app-dpi inspect <app-id> [--json]
-  omarchy-app-dpi set <app-id> <scale> [--strategy <strategy>] [--json]
-  omarchy-app-dpi reset <app-id> [--json]
-  omarchy-app-dpi --help
+  omarchy-app-scaling list [--json] [--search <term>]
+  omarchy-app-scaling inspect <app-id> [--json]
+  omarchy-app-scaling set <app-id> <scale> [--strategy <strategy>] [--json]
+  omarchy-app-scaling reset <app-id> [--json]
+  omarchy-app-scaling --help
+
+Aliases: omarchy-app-dpi
 
 Examples:
-  omarchy-app-dpi list --json
-  omarchy-app-dpi inspect com.flectar.mail
-  omarchy-app-dpi set com.flectar.mail 0.85
-  omarchy-app-dpi set google-chrome 1.15
-  omarchy-app-dpi reset com.flectar.mail
+  omarchy-app-scaling list --json
+  omarchy-app-scaling inspect com.flectar.mail
+  omarchy-app-scaling set com.flectar.mail 0.85
+  omarchy-app-scaling set google-chrome 1.15
+  omarchy-app-scaling reset com.flectar.mail
 `);
 }
 

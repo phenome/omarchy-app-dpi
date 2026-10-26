@@ -185,7 +185,7 @@ interface CacheEntry {
 let memoryCache: Record<string, CacheEntry> | null = null;
 const cachePath = path.join(
   process.env.XDG_CACHE_HOME || path.join(process.env.HOME || "", ".cache"),
-  "omarchy-app-dpi",
+  "omarchy-app-scaling",
   "cache.json",
 );
 

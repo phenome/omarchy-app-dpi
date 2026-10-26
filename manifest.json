@@ -1,11 +1,11 @@
 {
   "schemaVersion": 1,
-  "id": "phenome.app-dpi",
+  "id": "phenome.app-scaling",
   "name": "App Scaling",
   "version": "1.0.0",
   "author": "phenome",
   "license": "MIT",
-  "description": "Per-application DPI and scaling manager for Omarchy",
+  "description": "Per-application scaling manager for Omarchy",
   "kinds": ["bar-widget"],
   "entryPoints": {
     "barWidget": "AppDpiWidget.qml"

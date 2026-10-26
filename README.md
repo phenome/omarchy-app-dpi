@@ -1,6 +1,6 @@
-# omarchy-app-dpi
+# omarchy-app-scaling
 
-Per-application DPI and scaling manager for [Omarchy](https://omarchy.org/) Linux.
+Per-application scaling manager popover for [Omarchy](https://omarchy.org/) Linux.
 
 Allows overriding the UI scaling factor of individual applications without altering global monitor scaling. Automatically inspects ELF binaries and wrapper scripts to detect application toolkits deterministically and injects the optimal scaling environment variable or command-line flag into user desktop entries (`~/.local/share/applications/*.desktop`).
 
@@ -33,16 +33,28 @@ Allows overriding the UI scaling factor of individual applications without alter
 ### Via Omarchy Plugin Manager
 
 ```bash
-omarchy plugin add https://github.com/phenome/omarchy-app-dpi.git --enable
+omarchy plugin add https://github.com/phenome/omarchy-app-scaling.git --enable
 ```
 
-### CLI Tool Setup
+### Removal
 
-To make the `omarchy-app-dpi` command available in your terminal:
+To remove the plugin and CLI symlink:
 
 ```bash
-ln -sf ~/.config/omarchy/plugins/phenome.app-dpi/bin/omarchy-app-dpi ~/.local/bin/omarchy-app-dpi
+# Disable and uninstall the shell plugin
+omarchy plugin remove phenome.app-scaling
+
+# Remove the CLI symlink
+rm -f ~/.local/bin/omarchy-app-scaling ~/.local/bin/omarchy-app-dpi
 ```
+
+To reset scaling on all customized applications before uninstalling, run `omarchy-app-scaling reset <app-id>` for each overridden app.
+
+### Dependencies
+
+- **Omarchy Linux** (Quickshell shell)
+- **Bun** runtime (preinstalled on Omarchy)
+- `desktop-file-utils` (`desktop-file-validate` and `update-desktop-database`, standard system utilities)
 
 ---
 
@@ -52,36 +64,38 @@ ln -sf ~/.config/omarchy/plugins/phenome.app-dpi/bin/omarchy-app-dpi ~/.local/bi
 
 ```bash
 # Formatted list
-omarchy-app-dpi list
+omarchy-app-scaling list
 
 # Filtered search
-omarchy-app-dpi list --search chrome
+omarchy-app-scaling list --search chrome
 
 # JSON output
-omarchy-app-dpi list --json
+omarchy-app-scaling list --json
 ```
+
+*(Alias: `omarchy-app-dpi`)*
 
 ### Inspect an Application
 
 ```bash
-omarchy-app-dpi inspect com.flectar.mail
-omarchy-app-dpi inspect google-chrome
+omarchy-app-scaling inspect com.flectar.mail
+omarchy-app-scaling inspect google-chrome
 ```
 
 ### Set Scaling Factor
 
 ```bash
 # Scale Flectar Mail to 85%
-omarchy-app-dpi set com.flectar.mail 0.85
+omarchy-app-scaling set com.flectar.mail 0.85
 
 # Scale Chrome to 125%
-omarchy-app-dpi set google-chrome 1.25
+omarchy-app-scaling set google-chrome 1.25
 ```
 
 ### Reset to Default Scaling
 
 ```bash
-omarchy-app-dpi reset com.flectar.mail
+omarchy-app-scaling reset com.flectar.mail
 ```
 
 ---
@@ -91,7 +105,7 @@ omarchy-app-dpi reset com.flectar.mail
 To open the graphical scaling manager with `SUPER + CTRL + D`, add the following to `~/.config/hypr/bindings.lua`:
 
 ```lua
-o.rebind("SUPER + CTRL + D", "App Scaling", { panel = "phenome.app-dpi" })
+o.rebind("SUPER + CTRL + D", "App Scaling", { panel = "phenome.app-scaling" })
 ```
 
 Then reload Hyprland bindings:

@@ -1,10 +1,11 @@
 {
-  "name": "omarchy-app-dpi",
+  "name": "omarchy-app-scaling",
   "version": "1.0.0",
-  "description": "Per-application DPI and scaling manager for Omarchy",
+  "description": "Per-application scaling manager for Omarchy",
   "type": "module",
   "bin": {
-    "omarchy-app-dpi": "./bin/omarchy-app-dpi"
+    "omarchy-app-scaling": "./bin/omarchy-app-scaling",
+    "omarchy-app-dpi": "./bin/omarchy-app-scaling"
   },
   "scripts": {
     "lint": "biome check .",

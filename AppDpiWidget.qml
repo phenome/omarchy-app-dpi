@@ -8,8 +8,8 @@ import qs.Ui
 
 Panel {
   id: root
-  moduleName: "phenome.app-dpi"
-  ipcTarget: "phenome.app-dpi"
+  moduleName: "phenome.app-scaling"
+  ipcTarget: "phenome.app-scaling"
   manageIpc: false
 
   property string filterText: ""
@@ -116,7 +116,7 @@ Panel {
     root.statusMessage = "Applying scale...";
     root.isError = false;
     var target = Math.round(scale * 100) / 100;
-    actionProc.command = ["omarchy-app-dpi", "set", root.selectedApp.id, target.toFixed(2), "--json"];
+    actionProc.command = ["omarchy-app-scaling", "set", root.selectedApp.id, target.toFixed(2), "--json"];
     actionProc.running = true;
   }
 
@@ -124,7 +124,7 @@ Panel {
     if (!root.selectedApp || actionProc.running) return;
     root.statusMessage = "Restoring defaults...";
     root.isError = false;
-    actionProc.command = ["omarchy-app-dpi", "reset", root.selectedApp.id, "--json"];
+    actionProc.command = ["omarchy-app-scaling", "reset", root.selectedApp.id, "--json"];
     actionProc.running = true;
   }
 
@@ -151,7 +151,7 @@ Panel {
 
   Process {
     id: listProc
-    command: ["omarchy-app-dpi", "list", "--json"]
+    command: ["omarchy-app-scaling", "list", "--json"]
     running: false
     stdout: StdioCollector {
       waitForEnd: true
