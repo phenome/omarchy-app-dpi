@@ -13,7 +13,7 @@
   "barWidget": {
     "displayName": "App Scaling",
     "description": "Per-application DPI and scaling manager popover",
-    "category": "System",
+    "category": "Appearance",
     "allowMultiple": false,
     "defaultSection": "right"
   }
