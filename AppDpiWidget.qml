@@ -204,31 +204,34 @@ Panel {
     tooltipText: "App Scaling (" + (root.customizedCount > 0 ? root.customizedCount + " customized" : "per-app DPI") + ")"
     iconComponent: Component {
       Item {
-        width: Style.bar.iconSize
-        height: Style.bar.iconSize
+        width: 16
+        height: 16
         readonly property color col: button.active && button.useActiveColor ? button.activeColor : button.foreground
 
         // Corner scale brackets
-        Rectangle { x: 0; y: 0; width: Style.space(4); height: Style.space(1.5); color: parent.col }
-        Rectangle { x: 0; y: 0; width: Style.space(1.5); height: Style.space(4); color: parent.col }
+        // Top-Left
+        Rectangle { x: 0; y: 0; width: 4; height: 2; color: parent.col }
+        Rectangle { x: 0; y: 0; width: 2; height: 4; color: parent.col }
 
-        Rectangle { anchors.right: parent.right; y: 0; width: Style.space(4); height: Style.space(1.5); color: parent.col }
-        Rectangle { anchors.right: parent.right; y: 0; width: Style.space(1.5); height: Style.space(4); color: parent.col }
+        // Top-Right
+        Rectangle { x: 12; y: 0; width: 4; height: 2; color: parent.col }
+        Rectangle { x: 14; y: 0; width: 2; height: 4; color: parent.col }
 
-        Rectangle { x: 0; anchors.bottom: parent.bottom; width: Style.space(4); height: Style.space(1.5); color: parent.col }
-        Rectangle { x: 0; anchors.bottom: parent.bottom; width: Style.space(1.5); height: Style.space(4); color: parent.col }
+        // Bottom-Left
+        Rectangle { x: 0; y: 14; width: 4; height: 2; color: parent.col }
+        Rectangle { x: 0; y: 12; width: 2; height: 4; color: parent.col }
 
-        Rectangle { anchors.right: parent.right; anchors.bottom: parent.bottom; width: Style.space(4); height: Style.space(1.5); color: parent.col }
-        Rectangle { anchors.right: parent.right; anchors.bottom: parent.bottom; width: Style.space(1.5); height: Style.space(4); color: parent.col }
+        // Bottom-Right
+        Rectangle { x: 12; y: 14; width: 4; height: 2; color: parent.col }
+        Rectangle { x: 14; y: 12; width: 2; height: 4; color: parent.col }
 
-        // Inner scaled square
+        // Center solid square dot
         Rectangle {
-          anchors.centerIn: parent
-          width: Math.max(5, Math.round(parent.width * 0.44))
-          height: Math.max(5, Math.round(parent.height * 0.44))
-          color: "transparent"
-          border.color: parent.col
-          border.width: Style.space(1.5)
+          x: 6
+          y: 6
+          width: 4
+          height: 4
+          color: parent.col
         }
       }
     }
@@ -286,14 +289,12 @@ Panel {
               Rectangle { anchors.right: parent.right; anchors.bottom: parent.bottom; width: Style.space(7); height: Style.space(2); color: parent.col }
               Rectangle { anchors.right: parent.right; anchors.bottom: parent.bottom; width: Style.space(2); height: Style.space(7); color: parent.col }
 
-              // Inner scaled square
+              // Center solid square dot
               Rectangle {
                 anchors.centerIn: parent
-                width: Style.space(12)
-                height: Style.space(12)
-                color: "transparent"
-                border.color: parent.col
-                border.width: Style.space(2)
+                width: Style.space(8)
+                height: Style.space(8)
+                color: parent.col
               }
             }
           }
