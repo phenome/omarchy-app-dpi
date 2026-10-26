@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="square" stroke-linejoin="miter">
+  <!-- Outer brutalist frame -->
+  <rect x="3" y="3" width="18" height="18" />
+  <!-- Inner brutalist scaled square -->
+  <rect x="7" y="11" width="6" height="6" />
+  <!-- Scaling vector to top-right -->
+  <line x1="13" y1="11" x2="17" y2="7" />
+  <polyline points="14 7 17 7 17 10" />
+</svg>

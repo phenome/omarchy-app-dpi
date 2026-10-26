@@ -201,8 +201,37 @@ Panel {
     id: button
     anchors.fill: parent
     bar: root.bar
-    text: root.glyphScale
     tooltipText: "App Scaling (" + (root.customizedCount > 0 ? root.customizedCount + " customized" : "per-app DPI") + ")"
+    iconComponent: Component {
+      Item {
+        width: Style.bar.iconSize
+        height: Style.bar.iconSize
+        readonly property color col: button.active && button.useActiveColor ? button.activeColor : button.foreground
+
+        // Corner scale brackets
+        Rectangle { x: 0; y: 0; width: Style.space(4); height: Style.space(1.5); color: parent.col }
+        Rectangle { x: 0; y: 0; width: Style.space(1.5); height: Style.space(4); color: parent.col }
+
+        Rectangle { anchors.right: parent.right; y: 0; width: Style.space(4); height: Style.space(1.5); color: parent.col }
+        Rectangle { anchors.right: parent.right; y: 0; width: Style.space(1.5); height: Style.space(4); color: parent.col }
+
+        Rectangle { x: 0; anchors.bottom: parent.bottom; width: Style.space(4); height: Style.space(1.5); color: parent.col }
+        Rectangle { x: 0; anchors.bottom: parent.bottom; width: Style.space(1.5); height: Style.space(4); color: parent.col }
+
+        Rectangle { anchors.right: parent.right; anchors.bottom: parent.bottom; width: Style.space(4); height: Style.space(1.5); color: parent.col }
+        Rectangle { anchors.right: parent.right; anchors.bottom: parent.bottom; width: Style.space(1.5); height: Style.space(4); color: parent.col }
+
+        // Inner scaled square
+        Rectangle {
+          anchors.centerIn: parent
+          width: Math.max(5, Math.round(parent.width * 0.44))
+          height: Math.max(5, Math.round(parent.height * 0.44))
+          color: "transparent"
+          border.color: parent.col
+          border.width: Style.space(1.5)
+        }
+      }
+    }
     onPressed: function(buttonCode) {
       if (buttonCode === Qt.RightButton) root.loadApps();
       else root.toggle();
@@ -239,12 +268,33 @@ Panel {
           foreground: root.foreground
           fontFamily: root.fontFamily
           iconComponent: Component {
-            Text {
-              textFormat: Text.PlainText
-              text: root.glyphScale
-              color: root.accent
-              font.family: root.fontFamily
-              font.pixelSize: Style.font.display
+            Item {
+              width: Style.space(26)
+              height: Style.space(26)
+              readonly property color col: root.accent
+
+              // Corner brackets
+              Rectangle { x: 0; y: 0; width: Style.space(7); height: Style.space(2); color: parent.col }
+              Rectangle { x: 0; y: 0; width: Style.space(2); height: Style.space(7); color: parent.col }
+
+              Rectangle { anchors.right: parent.right; y: 0; width: Style.space(7); height: Style.space(2); color: parent.col }
+              Rectangle { anchors.right: parent.right; y: 0; width: Style.space(2); height: Style.space(7); color: parent.col }
+
+              Rectangle { x: 0; anchors.bottom: parent.bottom; width: Style.space(7); height: Style.space(2); color: parent.col }
+              Rectangle { x: 0; anchors.bottom: parent.bottom; width: Style.space(2); height: Style.space(7); color: parent.col }
+
+              Rectangle { anchors.right: parent.right; anchors.bottom: parent.bottom; width: Style.space(7); height: Style.space(2); color: parent.col }
+              Rectangle { anchors.right: parent.right; anchors.bottom: parent.bottom; width: Style.space(2); height: Style.space(7); color: parent.col }
+
+              // Inner scaled square
+              Rectangle {
+                anchors.centerIn: parent
+                width: Style.space(12)
+                height: Style.space(12)
+                color: "transparent"
+                border.color: parent.col
+                border.width: Style.space(2)
+              }
             }
           }
           trailingControl: Component {
@@ -547,7 +597,7 @@ Panel {
         // Selected App Card & Controls
         Rectangle {
           width: parent.width
-          height: selectedApp ? Style.space(190) : Style.space(50)
+          height: !selectedApp ? Style.space(50) : (selectedApp.toolkit === "webapp" ? Style.space(170) : (selectedApp.toolkit === "game" ? Style.space(140) : Style.space(190)))
           radius: Style.cornerRadius
           color: root.tintColor(root.foreground, 0.05)
           border.color: root.tintColor(root.foreground, 0.10)
@@ -616,96 +666,204 @@ Panel {
                 }
               }
             }
-
-            // Stepper Row
-            Row {
-              anchors.horizontalCenter: parent.horizontalCenter
-              spacing: Style.space(16)
-
-              Button {
-                text: "−0.05"
-                width: Style.space(68)
-                height: Style.space(30)
-                fontSize: Style.font.bodySmall
-                onClicked: root.adjustTargetScale(-0.05)
-              }
-
-              Text {
-                textFormat: Text.PlainText
-                text: root.targetScale.toFixed(2) + "x"
-                color: root.foreground
-                font.family: root.fontFamily
-                font.pixelSize: Style.font.title
-                font.bold: true
-                anchors.verticalCenter: parent.verticalCenter
-              }
-
-              Button {
-                text: "+0.05"
-                width: Style.space(68)
-                height: Style.space(30)
-                fontSize: Style.font.bodySmall
-                onClicked: root.adjustTargetScale(0.05)
-              }
-            }
-
-            // Presets Row
-            Row {
+            // WebApp guidance notice
+            Rectangle {
               width: parent.width
-              spacing: Style.space(6)
+              height: Style.space(98)
+              radius: Style.cornerRadius
+              color: root.tintColor(root.accent, 0.08)
+              border.color: root.tintColor(root.accent, 0.25)
+              border.width: 1
+              visible: root.selectedApp.toolkit === "webapp"
 
-              Repeater {
-                model: [0.75, 0.85, 1.00, 1.15, 1.25]
-                delegate: Button {
-                  text: modelData.toFixed(2) + "x"
-                  width: Math.floor((parent.width - Style.space(24)) / 5)
-                  height: Style.space(26)
-                  horizontalPadding: Style.space(4)
-                  fontSize: Style.font.caption
-                  selected: Math.abs(root.targetScale - modelData) < 0.01
-                  onClicked: {
-                    root.targetScale = modelData;
+              Column {
+                anchors.fill: parent
+                anchors.margins: Style.space(10)
+                spacing: Style.space(6)
+
+                Text {
+                  textFormat: Text.PlainText
+                  text: "🌐 WebApp (Browser-managed zoom)"
+                  color: root.accent
+                  font.family: root.fontFamily
+                  font.pixelSize: Style.font.bodySmall
+                  font.bold: true
+                }
+
+                Text {
+                  textFormat: Text.PlainText
+                  text: "WebApps share your browser session. In the application window, use:"
+                  color: root.foreground
+                  opacity: 0.8
+                  font.family: root.fontFamily
+                  font.pixelSize: Style.font.caption
+                  wrapMode: Text.WordWrap
+                  width: parent.width
+                }
+
+                Row {
+                  spacing: Style.space(12)
+                  Text {
+                    textFormat: Text.PlainText
+                    text: "Zoom In: Ctrl +"
+                    color: root.foreground
+                    font.family: root.fontFamily
+                    font.pixelSize: Style.font.caption
+                    font.bold: true
+                  }
+                  Text {
+                    textFormat: Text.PlainText
+                    text: "Zoom Out: Ctrl -"
+                    color: root.foreground
+                    font.family: root.fontFamily
+                    font.pixelSize: Style.font.caption
+                    font.bold: true
+                  }
+                  Text {
+                    textFormat: Text.PlainText
+                    text: "Reset: Ctrl 0"
+                    color: root.foreground
+                    font.family: root.fontFamily
+                    font.pixelSize: Style.font.caption
+                    font.bold: true
                   }
                 }
               }
             }
 
-            // Action Buttons Row
-            Row {
+            // Game guidance notice
+            Rectangle {
               width: parent.width
-              spacing: Style.space(8)
+              height: Style.space(68)
+              radius: Style.cornerRadius
+              color: root.tintColor(root.foreground, 0.05)
+              border.color: root.tintColor(root.foreground, 0.15)
+              border.width: 1
+              visible: root.selectedApp.toolkit === "game"
 
-              Button {
-                text: "Apply Scale"
-                width: (parent.width - Style.space(8)) * 0.6
-                height: Style.space(32)
-                bordered: true
-                selected: true
-                fontSize: Style.font.bodySmall
-                onClicked: root.setScale(root.targetScale)
-              }
+              Column {
+                anchors.fill: parent
+                anchors.margins: Style.space(10)
+                spacing: Style.space(4)
 
-              Button {
-                text: "Reset"
-                width: (parent.width - Style.space(8)) * 0.4
-                height: Style.space(32)
-                bordered: true
-                fontSize: Style.font.bodySmall
-                onClicked: root.resetScale()
+                Text {
+                  textFormat: Text.PlainText
+                  text: "🎮 3D Game"
+                  color: root.foreground
+                  font.family: root.fontFamily
+                  font.pixelSize: Style.font.bodySmall
+                  font.bold: true
+                }
+
+                Text {
+                  textFormat: Text.PlainText
+                  text: "Games manage resolution and UI scaling in their in-game graphics settings."
+                  color: root.foreground
+                  opacity: 0.7
+                  font.family: root.fontFamily
+                  font.pixelSize: Style.font.caption
+                  wrapMode: Text.Wrap
+                  width: parent.width
+                }
               }
             }
 
-            // Status feedback
-            Text {
-              textFormat: Text.PlainText
-              visible: root.statusMessage !== ""
-              text: root.statusMessage
-              color: root.isError ? root.urgent : root.foreground
-              opacity: root.isError ? 1.0 : 0.8
-              font.family: root.fontFamily
-              font.pixelSize: Style.font.caption
-              elide: Text.ElideRight
+            // Manageable App Controls (Stepper, Presets, Action buttons)
+            Column {
               width: parent.width
+              spacing: Style.space(8)
+              visible: root.selectedApp.toolkit !== "webapp" && root.selectedApp.toolkit !== "game"
+
+              // Stepper Row
+              Row {
+                anchors.horizontalCenter: parent.horizontalCenter
+                spacing: Style.space(16)
+
+                Button {
+                  text: "−0.05"
+                  width: Style.space(68)
+                  height: Style.space(30)
+                  fontSize: Style.font.bodySmall
+                  onClicked: root.adjustTargetScale(-0.05)
+                }
+
+                Text {
+                  textFormat: Text.PlainText
+                  text: root.targetScale.toFixed(2) + "x"
+                  color: root.foreground
+                  font.family: root.fontFamily
+                  font.pixelSize: Style.font.title
+                  font.bold: true
+                  anchors.verticalCenter: parent.verticalCenter
+                }
+
+                Button {
+                  text: "+0.05"
+                  width: Style.space(68)
+                  height: Style.space(30)
+                  fontSize: Style.font.bodySmall
+                  onClicked: root.adjustTargetScale(0.05)
+                }
+              }
+
+              // Presets Row
+              Row {
+                width: parent.width
+                spacing: Style.space(6)
+
+                Repeater {
+                  model: [0.75, 0.85, 1.00, 1.15, 1.25]
+                  delegate: Button {
+                    text: modelData.toFixed(2) + "x"
+                    width: Math.floor((parent.width - Style.space(24)) / 5)
+                    height: Style.space(26)
+                    horizontalPadding: Style.space(4)
+                    fontSize: Style.font.caption
+                    selected: Math.abs(root.targetScale - modelData) < 0.01
+                    onClicked: {
+                      root.targetScale = modelData;
+                    }
+                  }
+                }
+              }
+
+              // Action Buttons Row
+              Row {
+                width: parent.width
+                spacing: Style.space(8)
+
+                Button {
+                  text: "Apply Scale"
+                  width: (parent.width - Style.space(8)) * 0.6
+                  height: Style.space(32)
+                  bordered: true
+                  selected: true
+                  fontSize: Style.font.bodySmall
+                  onClicked: root.setScale(root.targetScale)
+                }
+
+                Button {
+                  text: "Reset"
+                  width: (parent.width - Style.space(8)) * 0.4
+                  height: Style.space(32)
+                  bordered: true
+                  fontSize: Style.font.bodySmall
+                  onClicked: root.resetScale()
+                }
+              }
+
+              // Status feedback
+              Text {
+                textFormat: Text.PlainText
+                visible: root.statusMessage !== ""
+                text: root.statusMessage
+                color: root.isError ? root.urgent : root.foreground
+                opacity: root.isError ? 1.0 : 0.8
+                font.family: root.fontFamily
+                font.pixelSize: Style.font.caption
+                elide: Text.ElideRight
+                width: parent.width
+              }
             }
           }
         }

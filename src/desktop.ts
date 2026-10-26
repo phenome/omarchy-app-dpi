@@ -344,6 +344,17 @@ export function setAppScale(
     throw new Error(`Application '${appId}' not found in desktop database.`);
   }
 
+  if (app.strategy === "BROWSER_ZOOM") {
+    throw new Error(
+      `'${app.name}' is a WebApp running in the browser. Scale it directly in the window using Ctrl++, Ctrl+-, or Ctrl+0.`,
+    );
+  }
+  if (app.strategy === "IN_GAME_SETTINGS") {
+    throw new Error(
+      `'${app.name}' is a 3D game. Configure resolution and scaling in its in-game graphics settings.`,
+    );
+  }
+
   const { user } = getApplicationDirs();
   if (!fs.existsSync(user)) {
     fs.mkdirSync(user, { recursive: true });

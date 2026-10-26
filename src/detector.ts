@@ -235,10 +235,10 @@ export function detectToolkit(
       exec.includes("--app=") ||
       context.startupWMClass?.toLowerCase().startsWith("chrome-")
     ) {
-      return { toolkit: "webapp", strategy: "CHROME_SCALE_FLAG" };
+      return { toolkit: "webapp", strategy: "BROWSER_ZOOM" };
     }
     if (exec.includes("steam steam://") || context.categories?.includes("Game;")) {
-      return { toolkit: "game", strategy: "UNKNOWN" };
+      return { toolkit: "game", strategy: "IN_GAME_SETTINGS" };
     }
   }
 

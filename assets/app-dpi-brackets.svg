@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="square" stroke-linejoin="miter">
+  <!-- Corner scale brackets -->
+  <path d="M 3 8 L 3 3 L 8 3" />
+  <path d="M 16 3 L 21 3 L 21 8" />
+  <path d="M 3 16 L 3 21 L 8 21" />
+  <path d="M 16 21 L 21 21 L 21 16" />
+  <!-- Inner scaled window -->
+  <rect x="8" y="8" width="8" height="8" stroke-width="2" />
+</svg>

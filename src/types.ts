@@ -17,6 +17,8 @@ export type ScalingStrategy =
   | "GDK_DPI_SCALE"
   | "CHROME_SCALE_FLAG"
   | "JAVA_UI_SCALE"
+  | "BROWSER_ZOOM"
+  | "IN_GAME_SETTINGS"
   | "UNKNOWN";
 
 export interface AppInfo {
