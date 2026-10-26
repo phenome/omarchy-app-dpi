@@ -76,7 +76,12 @@ Panel {
       var parsed = JSON.parse(raw);
       if (Array.isArray(parsed)) {
         root.allApps = parsed;
+        var previousAppId = root.selectedApp ? root.selectedApp.id : "";
+        var previousStatus = root.statusMessage;
         root.applyFilter();
+        if (root.selectedApp && root.selectedApp.id === previousAppId) {
+          root.statusMessage = previousStatus;
+        }
       }
     } catch (e) {
       console.warn("AppDpi: failed to parse apps list JSON:", e);
@@ -113,7 +118,7 @@ Panel {
 
   function setScale(scale) {
     if (!root.selectedApp || actionProc.running) return;
-    root.statusMessage = "Applying scale...";
+    root.statusMessage = "Saving launcher scale...";
     root.isError = false;
     var target = Math.round(scale * 100) / 100;
     actionProc.command = ["omarchy-app-scaling", "set", root.selectedApp.id, target.toFixed(2), "--json"];
@@ -171,7 +176,7 @@ Panel {
         try {
           var res = JSON.parse(text);
           if (res.success) {
-            root.statusMessage = "Configuration saved. Restart application to apply.";
+            root.statusMessage = "Launcher scale saved. Fully quit (including tray), then relaunch through the desktop launcher. Direct shortcuts may bypass this.";
             root.isError = false;
             root.loadApps();
           } else {
@@ -443,7 +448,7 @@ Panel {
         // Applications List (height ~160)
         Rectangle {
           width: parent.width
-          height: Style.space(160)
+          height: Math.max(0, Style.space(160) - Math.max(0, selectedAppCard.height - selectedAppCard.implicitHeight))
           radius: Style.cornerRadius
           color: root.tintColor(root.foreground, 0.04)
           border.color: root.tintColor(root.foreground, 0.10)
@@ -597,8 +602,10 @@ Panel {
 
         // Selected App Card & Controls
         Rectangle {
+          id: selectedAppCard
           width: parent.width
-          height: !selectedApp ? Style.space(50) : (selectedApp.toolkit === "webapp" ? Style.space(170) : (selectedApp.toolkit === "game" ? Style.space(140) : (selectedApp.toolkit === "unrecognized" || selectedApp.toolkit === "unknown" ? Style.space(255) : Style.space(190))))
+          implicitHeight: !selectedApp ? Style.space(50) : (selectedApp.toolkit === "webapp" ? Style.space(170) : (selectedApp.toolkit === "game" ? Style.space(140) : (selectedApp.toolkit === "unrecognized" || selectedApp.toolkit === "unknown" ? Style.space(255) : Style.space(190))))
+          height: root.selectedApp ? Math.max(implicitHeight, selectedAppContent.implicitHeight + Style.space(20)) : implicitHeight
           radius: Style.cornerRadius
           color: root.tintColor(root.foreground, 0.05)
           border.color: root.tintColor(root.foreground, 0.10)
@@ -619,6 +626,7 @@ Panel {
           }
 
           Column {
+            id: selectedAppContent
             anchors.fill: parent
             anchors.margins: Style.space(10)
             spacing: Style.space(8)
@@ -899,7 +907,7 @@ Panel {
                 opacity: root.isError ? 1.0 : 0.8
                 font.family: root.fontFamily
                 font.pixelSize: Style.font.caption
-                elide: Text.ElideRight
+                wrapMode: Text.Wrap
                 width: parent.width
               }
             }

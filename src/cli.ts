@@ -120,7 +120,7 @@ export function main(): void {
             JSON.stringify(
               {
                 success: true,
-                message: `Set scale to ${scale}x for ${updated.name}`,
+                message: `Saved launcher scale ${scale}x for ${updated.name}`,
                 app: updated,
               },
               null,
@@ -128,10 +128,13 @@ export function main(): void {
             ),
           );
         } else {
-          console.log(`✓ Set scale to ${scale}x for ${updated.name} (${updated.id})`);
+          console.log(`✓ Saved launcher scale ${scale}x for ${updated.name} (${updated.id})`);
           console.log(`  Updated: ${updated.desktopPath}`);
           console.log(`  Exec:    ${updated.exec}`);
-          console.log("  Restart the application to apply the new scaling.");
+          console.log(
+            "  Fully quit the application, including its tray icon, then relaunch through the desktop launcher.",
+          );
+          console.log("  Direct app shortcuts may bypass the saved launcher override.");
         }
         break;
       }

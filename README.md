@@ -5,9 +5,9 @@ Per-application scaling manager popover for [Omarchy](https://omarchy.org/) Linu
 Allows overriding the UI scaling factor of individual applications without altering global monitor scaling. Automatically inspects ELF binaries and wrapper scripts to detect application toolkits deterministically and injects the optimal scaling environment variable or command-line flag into user desktop entries (`~/.local/share/applications/*.desktop`).
 
 <p align="center">
-  <img src="screenshots/overview.png" alt="App Scaling Overview" width="400" />
+  <img src="screenshots/overview.png" alt="App Scaling application list with the current square-dot icon" width="400" />
   &nbsp;&nbsp;
-  <img src="screenshots/custom-scaling.png" alt="Custom Scale & Filter" width="400" />
+  <img src="screenshots/custom-scaling.png" alt="Flectar Mail configured at 0.85x with Slint scaling controls" width="400" />
 </p>
 
 ---
@@ -25,6 +25,15 @@ Allows overriding the UI scaling factor of individual applications without alter
 | **WebApps / PWAs** | `omarchy-launch-webapp`, `--app=` flag, `chrome-*` class | In-browser zoom (`Ctrl +` / `Ctrl -` / `Ctrl 0`) |
 | **Java** (AWT/Swing/JavaFX) | Executable `java` or `libjvm.so` | `-Dsun.java2d.uiScale=<scale>` |
 | **Unrecognized Engine** | Unidentified binaries or custom engines | `UNIVERSAL_FALLBACK`: Injects markers for every supported engine (`QT_SCALE_FACTOR`, `GDK_DPI_SCALE`, `SLINT_SCALE_FACTOR`), with no guarantees |
+
+### WebApps
+
+WebApps use browser zoom rather than managed scaling flags. Selecting one shows the keyboard shortcuts instead of scale controls:
+
+<p align="center">
+  <img src="screenshots/webapp-zoom.png" alt="Discord identified as a WebApp with Ctrl +, Ctrl -, and Ctrl 0 zoom guidance" width="400" />
+</p>
+
 
 ---
 
@@ -97,6 +106,18 @@ omarchy-app-scaling set google-chrome 1.25
 ```bash
 omarchy-app-scaling reset com.flectar.mail
 ```
+
+### Applying a Saved Scale
+
+The saved scale describes the application's `.desktop` launch settings, not a measured scale of its running windows. Fully quit the application (including its tray/background instance), then launch it through its desktop entry to apply the setting. Closing a window may leave the application running.
+
+Omarchy's packaged 1Password hotkey (`SUPER + SHIFT + SLASH`) uses a launcher that hardcodes `--force-device-scale-factor=1`, bypassing the saved desktop setting. Replace only that binding in `~/.config/hypr/bindings.lua`:
+
+```lua
+o.rebind("SUPER + SHIFT + SLASH", "Passwords", "uwsm-app -- gtk-launch 1password.desktop")
+```
+
+This resolves the user desktop override when present, or the system desktop entry otherwise. Direct binary launches and autostart commands may still bypass desktop settings. This launch-path correction is not a claim that 1Password's visual scaling has been verified.
 
 ---
 
