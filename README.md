@@ -158,6 +158,34 @@ bun run lint
 bun run format
 ```
 
+### Releases
+
+Releases are managed by [semantic-release](https://semantic-release.gitbook.io/) from Conventional Commits on `main`:
+
+| Commit | Release |
+| :--- | :--- |
+| `fix: correct saved scaling` | Patch |
+| `feat: support another toolkit` | Minor |
+| `feat!: change the configuration format` or a `BREAKING CHANGE:` footer | Major |
+| `docs:`, `chore:`, and other non-release changes | No release on their own |
+
+The conventionalcommits preset recognizes breaking changes through either `!` after the type/optional scope or a `BREAKING CHANGE:` footer. When multiple commits are included, the highest applicable release level wins.
+
+The CI workflow runs typechecking, linting/format checks, and tests for pull requests targeting `main`, pushes to `main`, and manual runs. Only a push or manual run on `main` can publish, and only after those checks pass. Release jobs are serialized without canceling an active publisher.
+
+When a release is due, automation synchronizes `package.json` and `manifest.json`, updates `CHANGELOG.md`, commits the generated metadata with `[skip ci]`, tags that commit as `v<version>`, and publishes a GitHub release with `preview.png` and `screenshots/*.png` assets. It does not publish an npm package. The generated commit does not start another release workflow.
+
+Do not edit version fields manually. To preview the next version and release notes locally, use Node 24.18.0 and Bun 1.4.4, install dependencies with `bun install --frozen-lockfile --ignore-scripts`, and run:
+
+```bash
+# Requires GitHub CLI authentication with access to this repository.
+GITHUB_TOKEN="$(gh auth token)" bun run release:dry-run
+```
+
+Dry runs still require authentication and check repository permissions, but skip release preparation and publication: no version/changelog writes, commits, tags, or GitHub releases are created.
+
+The workflow uses GitHub's built-in `GITHUB_TOKEN`; no additional secret is required. If branch protection later restricts release commits, a trusted GitHub App may be needed to authorize those writes.
+
 ---
 
 ## License

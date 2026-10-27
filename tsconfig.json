@@ -16,5 +16,11 @@
     "noImplicitOverride": true,
     "types": ["bun", "node"]
   },
-  "include": ["bin/**/*", "src/**/*"]
+  "include": [
+    "bin/**/*",
+    "src/**/*",
+    "scripts/**/*.js",
+    "scripts/**/*.test.ts",
+    "release.config.js"
+  ]
 }
