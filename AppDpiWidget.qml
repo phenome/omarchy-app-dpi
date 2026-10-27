@@ -19,7 +19,11 @@ Panel {
   readonly property var selectedApp: filteredApps.length > 0 && selectedIndex >= 0 && selectedIndex < filteredApps.length
     ? filteredApps[selectedIndex]
     : null
-  property real targetScale: selectedApp ? selectedApp.currentScale : 1.0
+  readonly property bool isSteam: selectedApp !== null && selectedApp.toolkit === "steam"
+  readonly property bool isManaged: selectedApp !== null && selectedApp.toolkit !== "webapp" && selectedApp.toolkit !== "game"
+  readonly property real scaleStep: isSteam ? 1 : 0.05
+  readonly property var scalePresets: isSteam ? [1, 2] : [0.75, 0.85, 1.00, 1.15, 1.25]
+  property real targetScale: initialTargetScale()
   property string statusMessage: ""
   property bool isError: false
   property bool cursorActive: false
@@ -49,7 +53,7 @@ Panel {
 
   onSelectedAppChanged: {
     if (selectedApp) {
-      targetScale = selectedApp.currentScale;
+      targetScale = initialTargetScale();
       statusMessage = "";
     }
   }
@@ -112,31 +116,38 @@ Panel {
       root.selectedIndex = 0;
     }
     if (root.selectedApp) {
-      root.targetScale = root.selectedApp.currentScale;
+      root.targetScale = root.initialTargetScale();
     }
   }
 
   function setScale(scale) {
-    if (!root.selectedApp || actionProc.running) return;
+    if (!root.isManaged || actionProc.running) return;
     root.statusMessage = "Saving launcher scale...";
     root.isError = false;
-    var target = Math.round(scale * 100) / 100;
+    var target = root.isSteam ? Math.max(1, Math.min(2, Math.round(scale))) : Math.round(scale * 100) / 100;
     actionProc.command = ["omarchy-app-scaling", "set", root.selectedApp.id, target.toFixed(2), "--json"];
     actionProc.running = true;
   }
 
   function resetScale() {
-    if (!root.selectedApp || actionProc.running) return;
+    if (!root.isManaged || actionProc.running) return;
     root.statusMessage = "Restoring defaults...";
     root.isError = false;
     actionProc.command = ["omarchy-app-scaling", "reset", root.selectedApp.id, "--json"];
     actionProc.running = true;
   }
 
+  function initialTargetScale() {
+    if (!root.selectedApp) return 1.0;
+    var scale = root.selectedApp.currentScale;
+    return root.isSteam ? Math.max(1, Math.min(2, Math.round(scale))) : scale;
+  }
+
   function adjustTargetScale(delta) {
-    var next = Math.round((root.targetScale + delta) * 100) / 100;
-    if (next < 0.50) next = 0.50;
-    if (next > 3.00) next = 3.00;
+    if (!root.isManaged) return;
+    var next = root.isSteam
+      ? Math.max(1, Math.min(2, Math.round(root.targetScale + delta)))
+      : Math.max(0.50, Math.min(3.00, Math.round((root.targetScale + delta) * 100) / 100));
     root.targetScale = next;
   }
 
@@ -425,10 +436,10 @@ Panel {
                   }
                   event.accepted = true;
                 } else if (event.key === Qt.Key_Left) {
-                  root.adjustTargetScale(-0.05);
+                  root.adjustTargetScale(-root.scaleStep);
                   event.accepted = true;
                 } else if (event.key === Qt.Key_Right) {
-                  root.adjustTargetScale(0.05);
+                  root.adjustTargetScale(root.scaleStep);
                   event.accepted = true;
                 } else if (event.key === Qt.Key_Return || event.key === Qt.Key_Enter) {
                   root.setScale(root.targetScale);
@@ -777,6 +788,18 @@ Panel {
               }
             }
 
+            Text {
+              textFormat: Text.PlainText
+              visible: root.isSteam
+              text: "Steam client: integer GDK_SCALE (1x or 2x). Fully quit Steam, including the tray, then reopen through the desktop launcher. No automatic restart."
+              color: root.foreground
+              opacity: 0.8
+              font.family: root.fontFamily
+              font.pixelSize: Style.font.caption
+              wrapMode: Text.WordWrap
+              width: parent.width
+            }
+
             // Unrecognized engine notice
             Rectangle {
               width: parent.width
@@ -826,16 +849,16 @@ Panel {
                 spacing: Style.space(16)
 
                 Button {
-                  text: "−0.05"
+                  text: root.isSteam ? "−1" : "−0.05"
                   width: Style.space(68)
                   height: Style.space(30)
                   fontSize: Style.font.bodySmall
-                  onClicked: root.adjustTargetScale(-0.05)
+                  onClicked: root.adjustTargetScale(-root.scaleStep)
                 }
 
                 Text {
                   textFormat: Text.PlainText
-                  text: root.targetScale.toFixed(2) + "x"
+                  text: root.targetScale.toFixed(root.isSteam ? 0 : 2) + "x"
                   color: root.foreground
                   font.family: root.fontFamily
                   font.pixelSize: Style.font.title
@@ -844,11 +867,11 @@ Panel {
                 }
 
                 Button {
-                  text: "+0.05"
+                  text: root.isSteam ? "+1" : "+0.05"
                   width: Style.space(68)
                   height: Style.space(30)
                   fontSize: Style.font.bodySmall
-                  onClicked: root.adjustTargetScale(0.05)
+                  onClicked: root.adjustTargetScale(root.scaleStep)
                 }
               }
 
@@ -858,10 +881,11 @@ Panel {
                 spacing: Style.space(6)
 
                 Repeater {
-                  model: [0.75, 0.85, 1.00, 1.15, 1.25]
+                  id: scalePresetRepeater
+                  model: root.scalePresets
                   delegate: Button {
-                    text: modelData.toFixed(2) + "x"
-                    width: Math.floor((parent.width - Style.space(24)) / 5)
+                    text: modelData.toFixed(root.isSteam ? 0 : 2) + "x"
+                    width: Math.floor((parent.width - Style.space(6) * (scalePresetRepeater.count - 1)) / scalePresetRepeater.count)
                     height: Style.space(26)
                     horizontalPadding: Style.space(4)
                     fontSize: Style.font.caption

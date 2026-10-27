@@ -227,9 +227,29 @@ export function detectToolkit(
   toolkit: ToolkitType;
   strategy: ScalingStrategy;
 } {
-  // Check context signatures first (WebApps, PWAs, Games)
+  // Classify launch context before consulting the shared executable's cache.
   if (context?.execLine) {
     const exec = context.execLine;
+    const tokens = extractCommandFromExec(exec);
+    let commandIndex = 0;
+    if (tokens[0] && path.basename(tokens[0]) === "env") {
+      commandIndex++;
+    }
+    while (/^[A-Za-z_][A-Za-z0-9_]*=/.test(tokens[commandIndex] ?? "")) {
+      commandIndex++;
+    }
+    const command = tokens[commandIndex];
+    if (command && path.basename(command) === "steam") {
+      const args = tokens.slice(commandIndex + 1);
+      const launchesGame = args.some(
+        (arg, index) =>
+          /^steam:\/\/(?:rungameid|run)\/\d+(?:[/?#]|$)/.test(arg) ||
+          (arg === "-applaunch" && /^\d+$/.test(args[index + 1] ?? "")),
+      );
+      return launchesGame
+        ? { toolkit: "game", strategy: "IN_GAME_SETTINGS" }
+        : { toolkit: "steam", strategy: "GDK_SCALE" };
+    }
     if (
       exec.includes("omarchy-launch-webapp") ||
       exec.includes("--app=") ||
@@ -237,7 +257,7 @@ export function detectToolkit(
     ) {
       return { toolkit: "webapp", strategy: "BROWSER_ZOOM" };
     }
-    if (exec.includes("steam steam://") || context.categories?.includes("Game;")) {
+    if (context.categories?.includes("Game;")) {
       return { toolkit: "game", strategy: "IN_GAME_SETTINGS" };
     }
   }

@@ -94,10 +94,22 @@ export function parseDesktopFile(filePath: string): {
   }
 }
 
-export function extractCurrentScale(execLine: string): {
+export function extractCurrentScale(
+  execLine: string,
+  strategyHint?: ScalingStrategy,
+): {
   scale: number;
   detectedStrategy?: ScalingStrategy;
 } {
+  if (strategyHint === "GDK_SCALE") {
+    const match = execLine.match(/\bGDK_SCALE=([0-9.]+)(?=\s|$)/);
+    const scale = match?.[1] ? Number(match[1]) : 1;
+    return {
+      scale: Number.isFinite(scale) && scale > 0 ? scale : 1,
+      detectedStrategy: "GDK_SCALE",
+    };
+  }
+
   // Check Slint
   const slintMatch = execLine.match(/SLINT_SCALE_FACTOR=([0-9.]+)/);
   if (slintMatch?.[1]) {
@@ -212,13 +224,13 @@ export function listApplications(): AppInfo[] {
     if (parsed.noDisplay) continue;
     if (parsed.terminal) continue;
 
-    const { scale, detectedStrategy } = extractCurrentScale(parsed.exec);
     const resolved = resolveBinary(parsed.exec);
     const { toolkit, strategy: detectedFromBinary } = detectToolkit(resolved, {
       execLine: parsed.exec,
       startupWMClass: parsed.startupWMClass,
       categories: parsed.categories,
     });
+    const { scale, detectedStrategy } = extractCurrentScale(parsed.exec, detectedFromBinary);
 
     const isOverridden = scale !== 1.0;
 
@@ -258,13 +270,13 @@ export function findAppById(appId: string): AppInfo | null {
     if (fs.existsSync(candidate)) {
       const parsed = parseDesktopFile(candidate);
       if (parsed) {
-        const { scale, detectedStrategy } = extractCurrentScale(parsed.exec);
         const resolved = resolveBinary(parsed.exec);
         const { toolkit, strategy } = detectToolkit(resolved, {
           execLine: parsed.exec,
           startupWMClass: parsed.startupWMClass,
           categories: parsed.categories,
         });
+        const { scale, detectedStrategy } = extractCurrentScale(parsed.exec, strategy);
         return {
           id: parsed.id,
           name: parsed.name,
@@ -302,8 +314,8 @@ export function stripScalingFromExec(execLine: string): string {
     .replace(/-Dsun\.java2d\.uiScale=[0-9.]+\s*/g, "")
     .trim();
 
-  // If Exec=env (with no remaining env vars), remove the env prefix
-  cleaned = cleaned.replace(/^env\s+/, "");
+  // Keep env when non-scaling assignments still need it.
+  cleaned = cleaned.replace(/^env\s+(?![A-Za-z_][A-Za-z0-9_]*=)/, "");
   return cleaned;
 }
 
@@ -316,6 +328,12 @@ export function buildScaledExec(
   const scaleStr = scale.toFixed(2).replace(/\.?0+$/, (match) => (match === ".00" ? ".0" : match));
 
   switch (strategy) {
+    case "GDK_SCALE": {
+      if (scale !== 1 && scale !== 2) {
+        throw new Error("Steam scaling supports only 1× or 2×.");
+      }
+      return `env GDK_SCALE=${scale} ${baseExec.startsWith("env ") ? baseExec.slice(4).trim() : baseExec}`;
+    }
     case "SLINT_SCALE_FACTOR": {
       if (baseExec.startsWith("env ")) {
         return `env SLINT_SCALE_FACTOR=${scaleStr} ${baseExec.slice(4).trim()}`;
@@ -380,6 +398,14 @@ export function setAppScale(
     );
   }
 
+  const strategy =
+    app.toolkit === "steam"
+      ? "GDK_SCALE"
+      : strategyOverride && strategyOverride !== "UNKNOWN"
+        ? strategyOverride
+        : app.strategy;
+  const newExec = buildScaledExec(app.exec, scale, strategy);
+
   const { user } = getApplicationDirs();
   if (!fs.existsSync(user)) {
     fs.mkdirSync(user, { recursive: true });
@@ -390,10 +416,6 @@ export function setAppScale(
   // Read content from current user file or system file
   const sourcePath = fs.existsSync(userDesktopPath) ? userDesktopPath : app.desktopPath;
   const content = fs.readFileSync(sourcePath, "utf8");
-
-  const strategy =
-    strategyOverride && strategyOverride !== "UNKNOWN" ? strategyOverride : app.strategy;
-  const newExec = buildScaledExec(app.exec, scale, strategy);
 
   const lines = content.split("\n");
   let inDesktopEntry = false;

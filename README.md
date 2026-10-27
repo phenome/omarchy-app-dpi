@@ -24,7 +24,13 @@ Allows overriding the UI scaling factor of individual applications without alter
 | **Electron / Chromium** | ASAR archive, `force-device-scale-factor` flag | `--force-device-scale-factor=<scale>` |
 | **WebApps / PWAs** | `omarchy-launch-webapp`, `--app=` flag, `chrome-*` class | In-browser zoom (`Ctrl +` / `Ctrl -` / `Ctrl 0`) |
 | **Java** (AWT/Swing/JavaFX) | Executable `java` or `libjvm.so` | `-Dsun.java2d.uiScale=<scale>` |
+| **Steam client** | Steam desktop launcher (not an explicit game launch) | `env GDK_SCALE=1` (1x) or `env GDK_SCALE=2` (2x) |
+| **Games** | Explicit game launches or game entries | In-game resolution and UI scaling settings |
 | **Unrecognized Engine** | Unidentified binaries or custom engines | `UNIVERSAL_FALLBACK`: Injects markers for every supported engine (`QT_SCALE_FACTOR`, `GDK_DPI_SCALE`, `SLINT_SCALE_FACTOR`), with no guarantees |
+
+### Steam client
+
+Steam client controls offer only integer `GDK_SCALE` values: 1x and 2x. Fractional Steam scaling has not been verified. After applying a scale, fully quit Steam, including its tray process, then reopen it through the desktop launcher; the plugin does not restart Steam automatically. Actual games remain informational and use their own graphics settings.
 
 ### WebApps
 
