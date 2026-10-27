@@ -354,12 +354,15 @@ function detectToolkitUncached(binaryPath: string): {
 
   // 4. Check Slint signatures
   // Slint applications are typically static Rust binaries containing slint_core / SLINT_SCALE_FACTOR
+  // Keep application paths in argv, never in shell source where substitutions could execute.
   try {
     const hasSlint = execFileSync(
       "sh",
       [
         "-c",
-        `strings "${binaryPath}" | grep -m 1 -E "SLINT_SCALE_FACTOR|slint_core|slint::|i_slint_core"`,
+        'strings -- "$1" | grep -m 1 -E "SLINT_SCALE_FACTOR|slint_core|slint::|i_slint_core"',
+        "toolkit-probe",
+        binaryPath,
       ],
       { encoding: "utf8", stdio: ["ignore", "pipe", "ignore"] },
     );
@@ -376,7 +379,9 @@ function detectToolkitUncached(binaryPath: string): {
       "sh",
       [
         "-c",
-        `strings "${binaryPath}" | grep -m 1 -E "force-device-scale-factor|Chrome_RenderWidgetHost"`,
+        'strings -- "$1" | grep -m 1 -E "force-device-scale-factor|Chrome_RenderWidgetHost"',
+        "toolkit-probe",
+        binaryPath,
       ],
       { encoding: "utf8", stdio: ["ignore", "pipe", "ignore"] },
     );

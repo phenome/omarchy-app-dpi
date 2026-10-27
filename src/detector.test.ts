@@ -1,4 +1,8 @@
 import { describe, expect, test } from "bun:test";
+import { execFileSync } from "node:child_process";
+import fs from "node:fs";
+import os from "node:os";
+import path from "node:path";
 import { detectToolkit } from "./detector.ts";
 
 const steamClient = { toolkit: "steam", strategy: "GDK_SCALE" } as const;
@@ -64,4 +68,35 @@ describe("Steam launch context", () => {
       game,
     );
   });
+});
+
+describe.each([
+  ["Slint", "SLINT_SCALE_FACTOR", { toolkit: "slint", strategy: "SLINT_SCALE_FACTOR" }],
+  ["Chromium", "Chrome_RenderWidgetHost", { toolkit: "electron", strategy: "CHROME_SCALE_FLAG" }],
+] as const)("%s signature scanning", (_name, signature, expected) => {
+  test.each(["$(touch probe-executed)", "`touch probe-executed`", '" ; touch probe-executed ; #'])(
+    "reads the literal filename %s without executing commands",
+    (filename) => {
+      const directory = fs.mkdtempSync(path.join(os.tmpdir(), "app-scaling-probe-"));
+      try {
+        const binaryPath = path.join(directory, filename);
+        // Detection must inspect files without launching them, even without executable permission.
+        fs.writeFileSync(binaryPath, `${signature}\n`, { mode: 0o600 });
+        const script = `
+        import { detectToolkit } from ${JSON.stringify(import.meta.resolve("./detector.ts"))};
+        process.stdout.write(JSON.stringify(detectToolkit(process.argv[1])));
+      `;
+        const output = execFileSync(process.execPath, ["--eval", script, binaryPath], {
+          cwd: directory,
+          encoding: "utf8",
+          env: { ...process.env, XDG_CACHE_HOME: path.join(directory, "cache") },
+        });
+
+        expect(fs.existsSync(path.join(directory, "probe-executed"))).toBe(false);
+        expect(JSON.parse(output)).toEqual(expected);
+      } finally {
+        fs.rmSync(directory, { recursive: true, force: true });
+      }
+    },
+  );
 });

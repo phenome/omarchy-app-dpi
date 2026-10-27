@@ -6,9 +6,7 @@
   "author": "phenome",
   "license": "MIT",
   "description": "Per-application scaling manager for Omarchy",
-  "kinds": [
-    "bar-widget"
-  ],
+  "kinds": ["bar-widget"],
   "entryPoints": {
     "barWidget": "AppDpiWidget.qml"
   },

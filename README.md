@@ -28,6 +28,8 @@ Allows overriding the UI scaling factor of individual applications without alter
 | **Games** | Explicit game launches or game entries | In-game resolution and UI scaling settings |
 | **Unrecognized Engine** | Unidentified binaries or custom engines | `UNIVERSAL_FALLBACK`: Injects markers for every supported engine (`QT_SCALE_FACTOR`, `GDK_DPI_SCALE`, `SLINT_SCALE_FACTOR`), with no guarantees |
 
+Toolkit probes inspect application files without launching them. File paths are passed as literal arguments rather than embedded in shell source, so shell metacharacters in filenames are not executed.
+
 ### Steam client
 
 Steam client controls offer only integer `GDK_SCALE` values: 1x and 2x. Fractional Steam scaling has not been verified. After applying a scale, fully quit Steam, including its tray process, then reopen it through the desktop launcher; the plugin does not restart Steam automatically. Actual games remain informational and use their own graphics settings.
@@ -173,7 +175,7 @@ The conventionalcommits preset recognizes breaking changes through either `!` af
 
 The CI workflow runs typechecking, linting/format checks, and tests for pull requests targeting `main`, pushes to `main`, and manual runs. Only a push or manual run on `main` can publish, and only after those checks pass. Release jobs are serialized without canceling an active publisher.
 
-When a release is due, automation synchronizes `package.json` and `manifest.json`, updates `CHANGELOG.md`, commits the generated metadata with `[skip ci]`, tags that commit as `v<version>`, and publishes a GitHub release with `preview.png` and `screenshots/*.png` assets. It does not publish an npm package. The generated commit does not start another release workflow.
+When a release is due, automation synchronizes `package.json` and `manifest.json`, formats both with Biome, updates `CHANGELOG.md`, commits the generated metadata with `[skip ci]`, tags that commit as `v<version>`, and publishes a GitHub release with `preview.png` and `screenshots/*.png` assets. It does not publish an npm package. The generated commit does not start another release workflow.
 
 Do not edit version fields manually. To preview the next version and release notes locally, use Node 24.18.0 and Bun 1.4.4, install dependencies with `bun install --frozen-lockfile --ignore-scripts`, and run:
 

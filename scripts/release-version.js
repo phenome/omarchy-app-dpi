@@ -1,5 +1,7 @@
+import { execFileSync } from "node:child_process";
 import { readFile, writeFile } from "node:fs/promises";
 import { join } from "node:path";
+import { fileURLToPath } from "node:url";
 
 /**
  * Synchronize release metadata before semantic-release commits it.
@@ -17,4 +19,15 @@ export async function prepare(_pluginConfig, context) {
 
   await writeFile(packagePath, `${JSON.stringify(packageData, null, 2)}\n`);
   await writeFile(manifestPath, `${JSON.stringify(manifestData, null, 2)}\n`);
+  execFileSync(
+    process.execPath,
+    [
+      fileURLToPath(import.meta.resolve("@biomejs/biome/bin/biome")),
+      "format",
+      "--write",
+      packagePath,
+      manifestPath,
+    ],
+    { cwd: context.cwd, stdio: "inherit" },
+  );
 }
