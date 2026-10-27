@@ -1,3 +1,9 @@
+## [1.1.1](https://github.com/phenome/omarchy-app-scaling/compare/v1.1.0...v1.1.1) (2026-10-27)
+
+### Bug Fixes
+
+* prevent command injection in toolkit probes ([ccbbd4a](https://github.com/phenome/omarchy-app-scaling/commit/ccbbd4aae3513113d3fafc7ab1f45c4c0652eace))
+
 ## [1.1.0](https://github.com/phenome/omarchy-app-scaling/compare/v1.0.0...v1.1.0) (2026-10-27)
 
 ### Features
